@@ -1,0 +1,18 @@
+services:
+
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5001"
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: sammy
+      POSTGRES_PASSWORD: secret123
+      POSTGRES_DB: sammyshop
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
