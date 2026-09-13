@@ -1,3 +1,7 @@
 venv/
 __pyc*che__/
 *.pyc
+
+jenkins/certs/
+zscaler-chain.pem
+
