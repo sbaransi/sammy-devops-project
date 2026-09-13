@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+
+metadata:
+  name: sammy-shop
+
+spec:
+  replicas: 3
+
+  selector:
+    matchLabels:
+      app: sammy-shop
+
+  template:
+    metadata:
+      labels:
+        app: sammy-shop
+
+    spec:
+      containers:
+      - name: sammy-shop
+        image: sammybaransi537/sammy-shop-api:v1
+
+        ports:
+        - containerPort: 5001

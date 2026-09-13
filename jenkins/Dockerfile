@@ -13,4 +13,9 @@ RUN update-ca-certificates && \
     -keystore $JAVA_HOME/lib/security/cacerts \
     -storepass changeit
 
+# Install Docker CLI
+RUN apt-get update && \
+    apt-get install -y docker.io && \
+    rm -rf /var/lib/apt/lists/*
+
 USER jenkins

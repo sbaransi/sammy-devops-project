@@ -1,0 +1,103 @@
+---
+# Source: sammy-shop/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sammy-shop-helm
+  labels:
+    helm.sh/chart: sammy-shop-0.1.0
+    app.kubernetes.io/name: sammy-shop
+    app.kubernetes.io/instance: sammy-shop
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+automountServiceAccountToken: true
+
+---
+# Source: sammy-shop/templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: sammy-shop-helm
+  labels:
+    helm.sh/chart: sammy-shop-0.1.0
+    app.kubernetes.io/name: sammy-shop
+    app.kubernetes.io/instance: sammy-shop
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: sammy-shop
+    app.kubernetes.io/instance: sammy-shop
+
+---
+# Source: sammy-shop/templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sammy-shop-helm
+  labels:
+    helm.sh/chart: sammy-shop-0.1.0
+    app.kubernetes.io/name: sammy-shop
+    app.kubernetes.io/instance: sammy-shop
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: sammy-shop
+      app.kubernetes.io/instance: sammy-shop
+  template:
+    metadata:
+      labels:
+        helm.sh/chart: sammy-shop-0.1.0
+        app.kubernetes.io/name: sammy-shop
+        app.kubernetes.io/instance: sammy-shop
+        app.kubernetes.io/version: "1.16.0"
+        app.kubernetes.io/managed-by: Helm
+    spec:
+      serviceAccountName: sammy-shop-helm
+      containers:
+        - name: sammy-shop
+          image: "sammybaransi537/sammy-shop-api:v1"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 5001
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+---
+# Source: sammy-shop/templates/tests/test-connection.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "sammy-shop-helm-test-connection"
+  labels:
+    helm.sh/chart: sammy-shop-0.1.0
+    app.kubernetes.io/name: sammy-shop
+    app.kubernetes.io/instance: sammy-shop
+    app.kubernetes.io/version: "1.16.0"
+    app.kubernetes.io/managed-by: Helm
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['sammy-shop-helm:80']
+  restartPolicy: Never
+
